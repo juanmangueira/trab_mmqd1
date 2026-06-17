@@ -275,7 +275,7 @@ def resolver_modelo():
     }, None
 
 # ============================================================================
-# FUNÇÃO PARA CRIAR MAPA COM MAPBOX (SEM A PROPRIEDADE 'line' inválida)
+# FUNÇÃO PARA CRIAR MAPA COM MAPBOX (SEM 'line' e 'dash' inválidos)
 # ============================================================================
 def criar_mapa(resultado=None):
     """Cria um mapa interativo com Plotly Mapbox mostrando origens e destino."""
@@ -324,7 +324,7 @@ def criar_mapa(resultado=None):
             lon=[lon],
             lat=[lat],
             mode='markers+text',
-            marker=dict(size=20, color=cor),  # 'line' removido
+            marker=dict(size=20, color=cor),  # sem 'line'
             text=[emoji],
             textposition='middle center',
             textfont=dict(size=16),
@@ -372,12 +372,12 @@ def criar_mapa(resultado=None):
 
             cor = CORES_PESSOAS[pessoa]
 
-            # Linha tracejada
+            # Linha (sem 'dash' - apenas color e width)
             fig.add_trace(go.Scattermapbox(
                 lon=[lon_orig_adj, lon_dest],
                 lat=[lat_orig_adj, lat_dest],
                 mode='lines',
-                line=dict(color=cor, width=2, dash='dash'),
+                line=dict(color=cor, width=2),  # 'dash' removido
                 opacity=0.6,
                 showlegend=False,
                 hoverinfo='skip'
@@ -402,7 +402,7 @@ def criar_mapa(resultado=None):
                         size=14,
                         color=cor,
                         angle=angle - 90
-                        # 'line' removido
+                        # sem 'line'
                     ),
                     showlegend=False,
                     hoverinfo='skip'
@@ -856,7 +856,7 @@ with tab4:
         <b>📌 Legenda:</b><br>
         • <b>Círculos coloridos</b> = Participantes com seus emojis<br>
         • <b>⭐ Estrela dourada</b> = Destino escolhido<br>
-        • <b>Linhas tracejadas</b> = Trajeto de cada participante até o destino<br>
+        • <b>Linhas</b> = Trajeto de cada participante até o destino<br>
         • <b>▲ Triângulos</b> = Direção do deslocamento<br>
         • <b>Passe o mouse</b> sobre qualquer participante para ver todos os dados
         </div>
