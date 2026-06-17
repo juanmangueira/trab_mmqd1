@@ -16,7 +16,7 @@ st.set_page_config(
 )
 
 # ============================================================================
-# ESTILO CSS PERSONALIZADO
+# ESTILO CSS PERSONALIZADO (com tabs legíveis em light/dark)
 # ============================================================================
 st.markdown("""
     <style>
@@ -62,18 +62,28 @@ st.markdown("""
         background-color: #f9f9f9;
         border-radius: 5px;
     }
+    /* Tabs com design minimalista e legível */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 2px;
+        gap: 4px;
+        border-bottom: 1px solid #e0e0e0;
     }
     .stTabs [data-baseweb="tab"] {
-        border-radius: 4px 4px 0 0;
-        padding: 8px 16px;
-        background-color: #f0f2f6;
+        border-radius: 0;
+        padding: 10px 18px;
+        background-color: transparent;
         font-weight: 500;
+        color: #555;
+        border-bottom: 3px solid transparent;
+        transition: color 0.2s, border-color 0.2s;
+    }
+    .stTabs [data-baseweb="tab"]:hover {
+        color: #1a3a5c;
+        border-bottom-color: #1a3a5c;
     }
     .stTabs [aria-selected="true"] {
-        background-color: #1a3a5c;
-        color: white;
+        color: #1a3a5c;
+        border-bottom-color: #1a3a5c;
+        background-color: transparent;
     }
     div[data-testid="stExpander"] div[role="button"] p {
         font-weight: 600;
@@ -110,7 +120,7 @@ MODAIS = ['App', 'Carro', 'Publico']
 COORDENADAS = {
     'Águas Claras': (-15.841, -48.028),
     'Gama': (-16.011, -48.066),
-    'Mangueiral': (-15.876, -47.913),   # aproximado
+    'Mangueiral': (-15.876, -47.913),
     'Asa Norte': (-15.766, -47.883),
     'Ceilândia': (-15.807, -48.117),
     'Núcleo Bandeirante': (-15.870, -47.981),
@@ -275,7 +285,7 @@ def resolver_modelo():
     }, None
 
 # ============================================================================
-# FUNÇÃO PARA CRIAR MAPA COM MAPBOX (SEM 'line' e 'dash' inválidos)
+# FUNÇÃO PARA CRIAR MAPA COM MAPBOX (compatível com Plotly)
 # ============================================================================
 def criar_mapa(resultado=None):
     """Cria um mapa interativo com Plotly Mapbox mostrando origens e destino."""
@@ -293,7 +303,6 @@ def criar_mapa(resultado=None):
         origem = ORIGENS[pessoa]
         lat, lon = COORDENADAS[origem]
 
-        # Offset para múltiplas pessoas na mesma origem
         if origem_counts[origem] > 1:
             offset = (offset_idx[origem] - (origem_counts[origem] - 1) / 2) * 0.005
             lat += offset * 0.5
@@ -303,7 +312,6 @@ def criar_mapa(resultado=None):
         cor = CORES_PESSOAS[pessoa]
         emoji = EMOJIS[pessoa]
 
-        # Texto do hover
         if resultado:
             dados_pessoa = next((item for item in resultado['planejamento'] if item['pessoa'] == pessoa), None)
             if dados_pessoa:
@@ -324,7 +332,7 @@ def criar_mapa(resultado=None):
             lon=[lon],
             lat=[lat],
             mode='markers+text',
-            marker=dict(size=20, color=cor),  # sem 'line'
+            marker=dict(size=20, color=cor),
             text=[emoji],
             textposition='middle center',
             textfont=dict(size=16),
@@ -344,7 +352,7 @@ def criar_mapa(resultado=None):
             lon=[lon_dest],
             lat=[lat_dest],
             mode='markers+text',
-            marker=dict(size=30, color='#FFD700', symbol='star'),  # sem 'line'
+            marker=dict(size=30, color='#FFD700', symbol='star'),
             text=['⭐'],
             textposition='middle center',
             textfont=dict(size=24),
@@ -353,7 +361,7 @@ def criar_mapa(resultado=None):
             showlegend=True
         ))
 
-        # --- Setas da origem ao destino (linhas + marcadores de seta) ---
+        # --- Linhas e setas ---
         for pessoa in PESSOAS:
             origem = ORIGENS[pessoa]
             lat_orig, lon_orig = COORDENADAS[origem]
@@ -372,18 +380,18 @@ def criar_mapa(resultado=None):
 
             cor = CORES_PESSOAS[pessoa]
 
-            # Linha (sem 'dash' - apenas color e width)
+            # Linha (sem 'dash')
             fig.add_trace(go.Scattermapbox(
                 lon=[lon_orig_adj, lon_dest],
                 lat=[lat_orig_adj, lat_dest],
                 mode='lines',
-                line=dict(color=cor, width=2),  # 'dash' removido
+                line=dict(color=cor, width=2),
                 opacity=0.6,
                 showlegend=False,
                 hoverinfo='skip'
             ))
 
-            # Marcador de seta (triângulo) próximo ao destino
+            # Seta (triângulo)
             dx = lon_dest - lon_orig_adj
             dy = lat_dest - lat_orig_adj
             length = np.sqrt(dx**2 + dy**2)
@@ -402,7 +410,6 @@ def criar_mapa(resultado=None):
                         size=14,
                         color=cor,
                         angle=angle - 90
-                        # sem 'line'
                     ),
                     showlegend=False,
                     hoverinfo='skip'
@@ -440,11 +447,10 @@ def criar_mapa(resultado=None):
 # INTERFACE STREAMLIT
 # ============================================================================
 
-# --- Cabeçalho ---
 st.markdown('<div class="main-header">📍 Problema de Transporte</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Encontro dos 7 Amigos no Distrito Federal</div>', unsafe_allow_html=True)
 
-# --- Sidebar ---
+# Sidebar
 with st.sidebar:
     st.image("https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Brasilia_Planaltocentral_%28cropped%29.jpg/1200px-Brasilia_Planaltocentral_%28cropped%29.jpg",
              caption="Brasília - Distrito Federal", use_container_width=True)
@@ -466,7 +472,7 @@ with st.sidebar:
     st.markdown(f"📱 App: **{FATOR_TEMPO_APP*100:.0f}%** do tempo do público")
     st.markdown(f"🚗 Carro: **{FATOR_TEMPO_CARRO*100:.0f}%** do tempo do público")
 
-# --- Tabs principais ---
+# Tabs com design melhorado
 tab1, tab2, tab3, tab4 = st.tabs([
     "📖 Explicação do Problema",
     "📐 Formulação Matemática",
@@ -512,7 +518,6 @@ with tab1:
 
     with col2:
         st.markdown("### 🗺️ Mapa das Regiões do DF")
-        # Mapa de contexto com Scattermapbox (sem 'line')
         fig_contexto = go.Figure()
 
         for regiao, (lat, lon) in COORDENADAS.items():
@@ -534,7 +539,7 @@ with tab1:
                 lon=[lon],
                 lat=[lat],
                 mode='markers',
-                marker=dict(size=20, color='#FFD700', symbol='star'),  # sem 'line'
+                marker=dict(size=20, color='#FFD700', symbol='star'),
                 name=f'Candidato: {dest}',
                 showlegend=True
             ))
@@ -775,7 +780,6 @@ with tab4:
         O sistema utilizará o solver **GLPK** para encontrar a solução ótima.
         """)
 
-    # --- Execução ---
     if executar:
         with st.spinner("🔄 Resolvendo o modelo de otimização... Isso pode levar alguns segundos."):
             time.sleep(0.5)
@@ -787,7 +791,6 @@ with tab4:
             st.session_state['resultado'] = resultado
             st.success("✅ Modelo resolvido com sucesso!")
 
-    # --- Exibir resultados ---
     if 'resultado' in st.session_state:
         resultado = st.session_state['resultado']
 
@@ -837,7 +840,6 @@ with tab4:
             modais_str = ", ".join([f"{k}: {v}" for k, v in modais_count.items()])
             st.metric("🚗 Modais Utilizados", modais_str)
 
-        # --- MAPA INTERATIVO ---
         st.markdown("---")
         st.markdown("### 🗺️ Visualização Interativa")
 
@@ -862,7 +864,6 @@ with tab4:
         </div>
         """, unsafe_allow_html=True)
 
-        # --- Resumo do destino ---
         st.markdown("---")
         st.markdown(f"### 🎯 Resumo do Destino: {resultado['destino']}")
 
@@ -902,7 +903,9 @@ with tab4:
         fig = criar_mapa(None)
         st.plotly_chart(fig, use_container_width=True)
 
-# --- Rodapé ---
+# ============================================================================
+# RODAPÉ
+# ============================================================================
 st.markdown("""
 <div class="footer">
     <p>📍 Problema de Transporte — Encontro dos Amigos no DF</p>
